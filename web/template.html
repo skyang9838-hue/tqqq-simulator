@@ -1,0 +1,338 @@
+<title>레버리지의 대가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F7F9FA; --panel:#FFFFFF; --panel-2:#F1F4F6;
+  --ink:#16212B; --ink-2:#3D4E5A; --muted:#697E8B;
+  --line:#DDE4E8; --line-2:#C9D4DA;
+  --tqqq:#B45309; --qqq:#0891B2;
+  --tqqq-soft:rgba(180,83,9,.13); --qqq-soft:rgba(8,145,178,.13);
+  --danger:#B02A37; --danger-soft:rgba(176,42,55,.11);
+  --good:#15706B;
+  --shadow:0 1px 2px rgba(22,33,43,.05),0 8px 24px -12px rgba(22,33,43,.16);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#101619; --panel:#161E23; --panel-2:#1C262C;
+    --ink:#E7EDF0; --ink-2:#B9C7CF; --muted:#8B9BA6;
+    --line:#25323A; --line-2:#32434D;
+    --tqqq:#D97706; --qqq:#0891B2;
+    --tqqq-soft:rgba(217,119,6,.18); --qqq-soft:rgba(8,145,178,.18);
+    --danger:#E06A75; --danger-soft:rgba(224,106,117,.15);
+    --good:#3FB3A6;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101619; --panel:#161E23; --panel-2:#1C262C;
+  --ink:#E7EDF0; --ink-2:#B9C7CF; --muted:#8B9BA6;
+  --line:#25323A; --line-2:#32434D;
+  --tqqq:#D97706; --qqq:#0891B2;
+  --tqqq-soft:rgba(217,119,6,.18); --qqq-soft:rgba(8,145,178,.18);
+  --danger:#E06A75; --danger-soft:rgba(224,106,117,.15);
+  --good:#3FB3A6;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+h1,h2,h3{font-family:Newsreader,Georgia,"Nanum Myeongjo",serif;font-weight:600;text-wrap:balance;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+header{padding:56px 0 28px;border-bottom:1px solid var(--line)}
+header h1{font-size:clamp(34px,5.2vw,52px);line-height:1.08;letter-spacing:-.015em}
+header .sub{margin-top:14px;color:var(--ink-2);max-width:62ch;font-size:16px}
+header .meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:12.5px}
+header .meta b{color:var(--ink-2);font-weight:500}
+
+.controls{
+  position:sticky;top:0;z-index:20;background:var(--ground);
+  border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:26px;
+}
+.ctl-row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:.075em;color:var(--muted);font-weight:600}
+.field input{
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line-2);
+  border-radius:5px;padding:7px 9px;font-size:14px;width:132px;
+}
+.field input:focus,button:focus-visible{outline:2px solid var(--qqq);outline-offset:1px}
+.field .hint{font-size:11px;color:var(--muted);font-family:"IBM Plex Mono",monospace}
+.seg{display:flex;border:1px solid var(--line-2);border-radius:5px;overflow:hidden}
+.seg button{
+  background:var(--panel);color:var(--ink-2);border:0;border-right:1px solid var(--line-2);
+  padding:7px 13px;font-size:13px;cursor:pointer;font-family:inherit;
+}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground);font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px;margin-bottom:30px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:15px 16px;box-shadow:var(--shadow)}
+.stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.stat .v{font-size:31px;line-height:1.12;margin-top:7px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .d{font-size:12.5px;color:var(--muted);margin-top:4px}
+.stat.alert{border-color:var(--danger);background:var(--danger-soft)}
+.stat.alert .v{color:var(--danger)}
+
+section{margin-bottom:38px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.sec-head h2{font-size:23px}
+.sec-head .note{color:var(--muted);font-size:13px}
+.lede{color:var(--ink-2);font-size:14.5px;max-width:76ch;margin:0 0 16px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+.card-pad{padding:16px 18px}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
+.legend .item{display:flex;align-items:center;gap:7px}
+.legend .swatch{width:13px;height:3px;border-radius:2px;flex:none;display:inline-block}
+.legend .swatch.dash{height:0;border-top:2px dashed var(--muted)}
+
+.chart-host{position:relative;width:100%}
+.chart-host canvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.tip{
+  position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line-2);
+  border-radius:7px;padding:9px 11px;font-size:12.5px;box-shadow:var(--shadow);
+  min-width:196px;opacity:0;transition:opacity .09s;z-index:9;
+}
+.tip .t-date{font-weight:600;margin-bottom:6px;font-size:12px;color:var(--ink)}
+.tip .t-row{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip .t-row .lab{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip .t-row .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:500}
+.tip .sw{width:9px;height:9px;border-radius:2px;flex:none}
+.tip .t-sep{height:1px;background:var(--line);margin:6px 0}
+.tip .t-note{color:var(--muted);font-size:11.5px;margin-top:5px}
+
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 11px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{
+  font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  font-weight:600;background:var(--panel);
+}
+th:first-child,td:first-child{text-align:left}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover{background:var(--panel-2)}
+tbody tr.sel{background:var(--qqq-soft)}
+.pill{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid transparent}
+.pill.win{color:var(--tqqq);background:var(--tqqq-soft);border-color:var(--tqqq)}
+.pill.lose{color:var(--qqq);background:var(--qqq-soft);border-color:var(--qqq)}
+.pill.bad{color:var(--danger);background:var(--danger-soft);border-color:var(--danger)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.two-col{grid-template-columns:1fr}}
+
+.dist-row{display:grid;grid-template-columns:54px 1fr 1fr;gap:10px;align-items:center;padding:5px 0}
+.dist-row .lbl{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.dist-head{display:grid;grid-template-columns:54px 1fr 1fr;gap:10px;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.dist-head span{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.dist-bar{position:relative;height:22px;background:var(--panel-2);border-radius:3px;overflow:hidden}
+.dist-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:0 3px 3px 0;display:block}
+.dist-bar span{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:500;color:var(--ink);
+}
+
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.goal-box{border:1px solid var(--line);border-radius:8px;padding:13px 14px}
+.goal-box .who{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.goal-box .big{font-size:26px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;line-height:1.1}
+.goal-box .sm{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+details.method{border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden}
+details.method summary{
+  padding:14px 18px;cursor:pointer;font-weight:600;font-size:15px;
+  font-family:Newsreader,Georgia,serif;list-style:none;display:flex;justify-content:space-between;gap:12px;
+}
+details.method summary::-webkit-details-marker{display:none}
+details.method summary::after{content:"자세히";color:var(--muted);font-size:12px;font-family:"IBM Plex Sans",sans-serif;font-weight:400}
+details.method[open] summary::after{content:"접기"}
+details.method .body{padding:2px 18px 20px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)}
+details.method h3{font-size:15px;margin:18px 0 7px;color:var(--ink)}
+details.method p{margin:7px 0}
+details.method .eq{
+  background:var(--panel-2);border-left:2px solid var(--qqq);padding:11px 14px;margin:11px 0;
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;overflow-x:auto;white-space:nowrap;
+}
+details.method ul{margin:7px 0;padding-left:19px}
+details.method li{margin:4px 0}
+.warn{
+  border-left:2px solid var(--danger);background:var(--danger-soft);
+  padding:11px 14px;margin:12px 0;font-size:13.5px;border-radius:0 5px 5px 0;
+}
+footer{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <h1>레버리지의 대가</h1>
+  <p class="sub">
+    나스닥100이 시작된 1985년까지 거슬러 올라가 3배 레버리지(TQQQ)를 복원하고,
+    가능한 <b>모든 시작 시점</b>에서 적립식으로 투자했다면 어떻게 됐을지를 QQQ와 나란히 놓고 본다.
+    평균이 아니라 <b>최악이 얼마나 나빴는지</b>를 보기 위한 도구다.
+  </p>
+  <div class="meta">
+    <span>데이터 <b id="m-range"></b></span>
+    <span>거래일 <b id="m-days"></b></span>
+    <span>TQQQ 실측 <b id="m-real"></b> · 그 이전은 모델 복원</span>
+    <span>달러 기준 · 세전</span>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="ctl-row">
+    <div class="field">
+      <label for="f-init">초기 투자금</label>
+      <input id="f-init" type="text" inputmode="numeric" value="100,000,000">
+      <span class="hint" id="h-init">1억 원</span>
+    </div>
+    <div class="field">
+      <label for="f-monthly">월 적립금</label>
+      <input id="f-monthly" type="text" inputmode="numeric" value="1,500,000">
+      <span class="hint" id="h-monthly">150만 원</span>
+    </div>
+    <div class="field">
+      <label>투자 기간</label>
+      <div class="seg" id="seg-years" role="group" aria-label="투자 기간">
+        <button type="button" data-y="5">5년</button>
+        <button type="button" data-y="10" aria-pressed="true">10년</button>
+        <button type="button" data-y="15">15년</button>
+        <button type="button" data-y="20">20년</button>
+        <button type="button" data-y="25">25년</button>
+        <button type="button" data-y="30">30년</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-goal">목표 금액</label>
+      <input id="f-goal" type="text" inputmode="numeric" value="500,000,000">
+      <span class="hint" id="h-goal">5억 원</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<section>
+  <div class="sec-head">
+    <h2>시작 시점이 전부를 가른다</h2>
+    <span class="note">가로축은 투자를 <b>시작한</b> 달 · 세로축은 원금 대비 배수 (로그)</span>
+  </div>
+  <p class="lede">
+    같은 조건, 같은 기간인데 시작한 달 하나로 결과가 수백 배 벌어진다.
+    1.0배 선 아래는 원금조차 못 건진 구간이다. 차트를 클릭하면 그 시점의 실제 투자 여정을 아래에서 볼 수 있다.
+  </p>
+  <div class="card card-pad">
+    <div class="legend" style="margin-bottom:10px">
+      <span class="item"><i class="swatch" style="background:var(--tqqq)"></i>TQQQ (3배)</span>
+      <span class="item"><i class="swatch" style="background:var(--qqq)"></i>QQQ</span>
+      <span class="item"><i class="swatch dash"></i>원금 (1.0배)</span>
+    </div>
+    <div class="chart-host" id="host-roll">
+      <canvas id="c-roll" height="330"></canvas>
+      <div class="tip" id="tip-roll"></div>
+    </div>
+  </div>
+</section>
+
+<div class="two-col">
+  <section>
+    <div class="sec-head"><h2>결과의 분포</h2></div>
+    <p class="lede">원금 대비 최종 배수를 낮은 순으로 줄 세웠을 때 위치별 값.</p>
+    <div class="card card-pad" id="dist"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>목표 금액 도달</h2></div>
+    <p class="lede">목표에 처음 닿으면 즉시 매도한다고 볼 때의 결과.</p>
+    <div class="card card-pad" id="goal"></div>
+  </section>
+</div>
+
+<section>
+  <div class="sec-head">
+    <h2>TQQQ가 가장 크게 진 시작 시점</h2>
+    <span class="note">행을 클릭하면 아래에 그 투자의 실제 경로가 그려진다</span>
+  </div>
+  <div class="card tbl-scroll"><table id="t-worst"></table></div>
+</section>
+
+<section>
+  <div class="sec-head">
+    <h2 id="detail-title">한 사람의 투자 여정</h2>
+    <span class="note" id="detail-note"></span>
+  </div>
+  <div class="card card-pad">
+    <div class="legend" style="margin-bottom:10px">
+      <span class="item"><i class="swatch" style="background:var(--tqqq)"></i>TQQQ 평가액</span>
+      <span class="item"><i class="swatch" style="background:var(--qqq)"></i>QQQ 평가액</span>
+      <span class="item"><i class="swatch dash"></i>누적 원금</span>
+    </div>
+    <div class="chart-host" id="host-path">
+      <canvas id="c-path" height="300"></canvas>
+      <div class="tip" id="tip-path"></div>
+    </div>
+    <div id="path-stats" class="stats" style="margin-top:16px;margin-bottom:0"></div>
+  </div>
+</section>
+
+<section>
+  <details class="method">
+    <summary>가상 TQQQ는 어떻게 만들었나 — 그리고 무엇을 믿으면 안 되나</summary>
+    <div class="body">
+      <h3>모델</h3>
+      <p>TQQQ는 2010년 2월에 상장했다. 그 이전 구간은 나스닥100 지수에 실제 레버리지 ETF의 비용 구조를 씌워 복원했다.</p>
+      <div class="eq">r = L × r_NDX + 배당 − ER/252 − b × (L−1) × 금리 − c × (L−1) × |r_NDX|</div>
+      <ul>
+        <li><b>금리</b> — 13주 T-bill(^IRX) 할인율을 채권등가수익률로 환산. 1985~89년 평균 6.66%, 2010~21년 0.49%로 시대별 차이가 크다.</li>
+        <li><b>b = <span id="mm-b"></span></b> — 실효 조달금리가 T-bill의 몇 배인지. 레버리지 ETF는 오버나이트로 조달하므로 T-bill과 차이가 난다.</li>
+        <li><b>c = <span id="mm-c"></span></b> — 일일 리밸런싱 거래비용. 변동성이 클수록 커진다.</li>
+        <li><b>배당</b> — QQQ 실지급 배당에서 역산(2004.7~). 그 이전은 연 0.5% 가정.</li>
+      </ul>
+
+      <h3>검증</h3>
+      <p>계수는 임의로 정하지 않고 <b>실제로 존재하는 세 상품</b>(QQQ 1배, QLD 2배, TQQQ 3배)의 연도별 성과에 동시에 맞췄다. 레버리지가 다른 세 상품을 하나의 계수 세트로 설명할 수 있다는 것이 모델 구조의 근거다.</p>
+      <ul>
+        <li>QQQ 1999~2026 — 실제 연 10.83% / 모델 연 10.96%</li>
+        <li>QLD 2006~2026 — 실제 연 25.23% / 모델 연 24.51%</li>
+        <li>TQQQ 2010~2026 — 실제 연 42.76% / 모델 연 40.86%</li>
+      </ul>
+      <p>세 상품 모두 모델이 실제보다 <b>낮게</b> 나온다. 잔여 상수항을 0으로 눌러 낙관적으로 기울지 않게 했기 때문이고, 그만큼 이 시뮬레이션은 TQQQ에 불리한 쪽으로 치우쳐 있다.</p>
+
+      <h3>믿으면 안 되는 것</h3>
+      <div class="warn">
+        <b>−99.9%는 현실에서 상장폐지다.</b> 모델상 가상 TQQQ는 닷컴 붕괴에서 −99.96%까지 떨어지고 수학적으로는 계속 살아남지만,
+        실제였다면 그 전에 청산되거나 역분할됐을 가능성이 높다. 그 구간의 회복 수치는 "만약 살아남았다면"이라는 가정 위에 있다.
+      </div>
+      <ul>
+        <li><b>환율이 빠져 있다.</b> 전부 달러 기준이다. 실제 한국 투자자는 환노출을 피할 수 없고, IMF·금융위기 때 원화 평가액은 크게 달라졌다.</li>
+        <li><b>세금이 빠져 있다.</b> 해외주식 양도세 22%를 반영하지 않은 세전 금액이다. 목표 금액에 실제로 닿으려면 더 벌어야 한다.</li>
+        <li><b>1985~2003 배당은 가정값</b>이다. QQQ가 2003년 12월에야 첫 배당을 지급해 그 이전은 실측이 불가능하다.</li>
+        <li><b>2000~2001년 지수 데이터에 이상치</b>가 있다. 이 구간 일별 수치는 오차가 크다.</li>
+        <li>과거가 미래를 보장하지 않는다. 특히 이 표본은 닷컴버블이라는 단 한 번의 사건이 결과를 크게 지배한다.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<footer>
+  나스닥100 · TQQQ · QLD · QQQ · 13주 T-bill 데이터 출처 Yahoo Finance · 모델 계수는 실제 상품 성과로 캘리브레이션 ·
+  달러 기준, 세전 · <span id="foot-built"></span>
+</footer>
+
+</div>
+
+<script id="tqqq-data" type="application/json">__DATA__</script>
+<script>__SCRIPT__</script>

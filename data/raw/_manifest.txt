@@ -1,0 +1,7 @@
+fetched_at	2026-08-31T00:34:18
+name	desc	rows	start	end	divs
+ndx	Nasdaq-100 price index	10306	1985-10-01	2026-08-27	0
+tqqq	ProShares UltraPro QQQ (3x)	4161	2010-02-11	2026-08-27	21
+qqq	Invesco QQQ Trust	6910	1999-03-10	2026-08-27	89
+qld	ProShares Ultra QQQ (2x)	5078	2006-06-21	2026-08-27	32
+irx	13-week T-bill discount rate (%)	14183	1970-01-02	2026-08-27	0

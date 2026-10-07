@@ -31,6 +31,12 @@ path = os.path.join(ROOT, "시뮬레이터.html")
 with open(path, "w", encoding="utf-8") as f:
     f.write(out)
 
+# GitHub Pages용: 아티팩트 형식(스켈레톤 없음)에 문서 뼈대를 씌운다
+with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
+    f.write('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>\n<body>\n'
+            + out + "\n</body>\n</html>\n")
+
 kb = len(out.encode("utf-8")) / 1024
 print(f"wrote {path}")
 print(f"  size      {kb:,.1f} KB   (한도 16,384 KB)")
